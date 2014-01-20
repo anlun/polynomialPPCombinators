@@ -1,5 +1,6 @@
 import UU.Pretty
 import System.Environment (getArgs)
+import System.Random
 
 data Tree = T String
           | Node Tree Tree
@@ -33,12 +34,32 @@ exTreeG n = Node subtree subtree
 -- Умирает при best 8 ...
 -- Даже на best 8 1000000
 
-best tHeight width =
+heightToDoc :: [String] -> Int -> (PP_Doc, [String])
+heightToDoc (x:xs) 0 = (text x, xs)
+heightToDoc (x:xs) n = (node >|< (join $ (a >|< c) >//< (b >-< d)), zs)
+  where
+    node    = text x
+    (a, ys) = heightToDoc xs (n-1)
+    (b, zs) = heightToDoc ys (n-1)
+    (c, as) = heightToDoc zs (n-1)
+    (d, bs) = heightToDoc as (n-1)
+
+bestR tHeight width =
   do
-    --render (treeToDoc $ exTreeG tHeight) width
-    render (treeToDoc_1 $ exTreeG tHeight) width
-    putStrLn ""
+    g <- getStdGen
+    --putStrLn $ pretty width (treeToDocR . fst $ treeRG (randomRs ('a', 'z') g) tHeight)
+    flip render width $ fst (heightToDoc (map (\x -> x:"") (randomRs ('a', 'z') g)) tHeight)
 
 main = do
   args <- getArgs
-  let tHeight = read (head args); width = read (args !! 1) in best tHeight width
+  let tHeight = read (head args); width = read (args !! 1) in bestR tHeight width
+
+--best tHeight width =
+--  do
+--    --render (treeToDoc $ exTreeG tHeight) width
+--    render (treeToDoc_1 $ exTreeG tHeight) width
+--    putStrLn ""
+
+--main = do
+--  args <- getArgs
+--  let tHeight = read (head args); width = read (args !! 1) in best tHeight width

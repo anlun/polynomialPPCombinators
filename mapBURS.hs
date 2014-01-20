@@ -1,5 +1,12 @@
 {-# LANGUAGE DeriveGeneric #-}
 
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
+import Data.MemoTrie
+import Data.Binary
+import qualified Data.ByteString.Lazy as ByteLazy
+
+
 import GHC.Generics (Generic)
 import Data.Hashable
 import Data.Maybe
@@ -79,41 +86,43 @@ isFrameSuitable n (F w lw) = w <= n
 -- Formats -----------------------------------------------------------
 
 type Variants = Map.HashMap Frame Format
-data Doc      = D Int Variants
+type Doc = Int -> Variants
 
 update :: Format -> Variants -> Variants
 update fmt = Map.insertWith min (fmtToFrame fmt) fmt 
 
-text :: Int -> String -> Doc
-text n s = D n vs where
- f  = s2fmt s
- vs = if isSuitable n f
-      then Map.singleton (fmtToFrame f) f
-      else Map.empty
+text :: String -> Doc
+text s = \n ->
+  let f = s2fmt s
+  in if isSuitable n f
+     then Map.singleton (fmtToFrame f) f
+     else Map.empty
 
-indent :: Int -> Int -> Doc -> Doc
-indent n i (D _ vs) = D n (Map.fromList vs') where
- docs = Map.elems (Map.filter (isSuitable (n-i)) vs)
- vs'  = map ((\f -> (fmtToFrame f, f)) . indentFmt i) docs
+indent :: Int -> Doc -> Doc
+indent i d = \n ->
+  let docs = Map.elems (Map.filter (isSuitable (n-i)) (d n))
+      vs'  = map ((\f -> (fmtToFrame f, f)) . indentFmt i) docs
+  in Map.fromList vs'
 
-choice, beside, above :: Int -> Doc -> Doc -> Doc
-choice n (D _ a) (D _ b) = D n $ Map.foldl' (flip update) b a
-beside n (D _ a) (D _ b) = D n $ cross n besideFmt a b
-above  n (D _ a) (D _ b) = D n $ cross n aboveFmt  a b
+choice, beside, above :: Doc -> Doc -> Doc
+choice a b = \n -> Map.foldl' (flip update) (b n) (a n)
+beside a b = \n -> cross n besideFmt (a n) (b n)
+above  a b = \n -> cross n aboveFmt  (a n) (b n)
 
 cross :: Int -> (Format -> Format -> Format) -> Variants -> Variants -> Variants
-cross n f a b = Map.foldl' (\m f1 -> Map.foldl' (flip $ g . (f f1)) m b) Map.empty a where
- g f = if isSuitable n f then update f else id
+cross n f a b = 
+ Map.foldl' (\m f1 -> Map.foldl' (flip $ g . (f f1)) m b) Map.empty a where
+  g f = if isSuitable n f then update f else id
 
 (>//<), (>|<), (>-<) :: Doc -> Doc -> Doc
-(>//<) a@(D n _) = choice n a
-(>|<)  a@(D n _) = beside n a
-(>-<)  a@(D n _) = above  n a
+(>//<) = choice
+(>|<)  = beside
+(>-<)  = above 
 
 pretty :: Int -> Doc -> String
-pretty n (D _ vs) = 
- case Map.elems vs of
-  [] -> error "Что-то написать"
+pretty n d = 
+ case Map.elems (d n) of
+  [] -> error "No layout"
   xs -> (\x -> txtstr x 0 "") $ List.minimum xs
 
 -- -------------------------------------------------------------------
@@ -121,13 +130,13 @@ pretty n (D _ vs) =
 data TreeR = TR String
            | NodeR TreeR TreeR
 
-treeToDocR :: Int -> TreeR -> Doc
-treeToDocR n (TR s)        = text n s
-treeToDocR n (NodeR lt rt) = besideVariant >//< aboveVariant
+treeToDocR :: TreeR -> Doc
+treeToDocR (TR s)        = text s
+treeToDocR (NodeR lt rt) = besideVariant >//< aboveVariant
   where
-    p   = text n "-"
-    lft = treeToDocR n lt
-    rft = treeToDocR n rt
+    p   = text "-"
+    lft = treeToDocR lt
+    rft = treeToDocR rt
     besideVariant = p >|< lft >|< rft
     aboveVariant  = p >-< lft >-< rft
 
@@ -139,11 +148,22 @@ treeRG l n = (NodeR t1 t2, l2)
     (t1, l1) = treeRG l  (n-1)
     (t2, l2) = treeRG l1 (n-1)
 
-bestR :: Integer -> Int -> IO ()
+heightToDoc :: [String] -> Int -> (Doc, [String])
+heightToDoc (x:xs) 0 = (text x, xs)
+heightToDoc (x:xs) n = (node >|< ((a >|< c) >//< (b >-< d)), zs)
+  where
+    node    = text x
+    (a, ys) = heightToDoc xs (n-1)
+    (b, zs) = heightToDoc ys (n-1)
+    (c, as) = heightToDoc zs (n-1)
+    (d, bs) = heightToDoc as (n-1)
+
+bestR :: Int -> Int -> IO ()
 bestR tHeight width =
   do
     g <- getStdGen
-    putStrLn $ pretty width ((treeToDocR width) . fst $ treeRG (randomRs ('a', 'z') g) tHeight)
+--    putStrLn $ pretty width (treeToDocR . fst $ treeRG (randomRs ('a', 'z') g) tHeight)
+    putStrLn $ pretty width $ fst (heightToDoc (map (\x -> x:"") (randomRs ('a', 'z') g)) tHeight)
 
 main = do
   args <- getArgs
