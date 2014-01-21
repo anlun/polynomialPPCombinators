@@ -2,10 +2,12 @@
 
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
+
+module MapBURS where
+
 import Data.MemoTrie
 import Data.Binary
 import qualified Data.ByteString.Lazy as ByteLazy
-
 
 import GHC.Generics (Generic)
 import Data.Hashable
@@ -165,6 +167,8 @@ bestR tHeight width =
 --    putStrLn $ pretty width (treeToDocR . fst $ treeRG (randomRs ('a', 'z') g) tHeight)
     putStrLn $ pretty width $ fst (heightToDoc (map (\x -> x:"") (randomRs ('a', 'z') g)) tHeight)
 
+{-
 main = do
   args <- getArgs
   let tHeight = read (head args); width = read (args !! 1) in bestR tHeight width
+-}
