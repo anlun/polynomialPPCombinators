@@ -1,5 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 
+module DocHashMap where
+
 import GHC.Generics (Generic)
 import Data.Hashable
 import Data.Maybe

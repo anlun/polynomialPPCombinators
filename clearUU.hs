@@ -1,3 +1,5 @@
+module ClearUU where
+
 import UU.Pretty
 import System.Environment (getArgs)
 import System.Random
@@ -50,9 +52,9 @@ bestR tHeight width =
     --putStrLn $ pretty width (treeToDocR . fst $ treeRG (randomRs ('a', 'z') g) tHeight)
     flip render width $ fst (heightToDoc (map (\x -> x:"") (randomRs ('a', 'z') g)) tHeight)
 
-main = do
-  args <- getArgs
-  let tHeight = read (head args); width = read (args !! 1) in bestR tHeight width
+--main = do
+--  args <- getArgs
+--  let tHeight = read (head args); width = read (args !! 1) in bestR tHeight width
 
 --best tHeight width =
 --  do
