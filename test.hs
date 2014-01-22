@@ -11,65 +11,52 @@ import qualified UU.Pretty as UU
 
 import qualified DocHashMap
 
-treeHeights = [6, 7, 8]
+treeHeights = [5, 6] --, 7]--[9, 10, 11]
 w = [25, 50, 100, 150]
 
-cross l1 l2 = [(x, y) | x <- l1, y <- l2]
+testNumber = 10
+dividingF  = (/ 10)
 
-mapBURStest l = do
-  trees <- return $ map (\h -> (fst (MapBURS.heightToDoc l h), h)) treeHeights
-  a1 <- trees `deepseq` (return "")
-  print a1
-  printf "----------------------\nmapBURS\n----------------------\n"
-  b <- foldl' (\f (w, (t, h)) -> do
-                c <- f
-                start <- getCurrentTime
-                a <- return $ (++) c $ take 2 $ MapBURS.pretty w t
-                print a
-                stop  <- getCurrentTime
-                printf "width: %d\nheight: %d\n" w h
-                print $ diffUTCTime stop start
-                printf "\n\n"
-                return $ a
-              ) (return "") $ cross w trees
+cross l1 l2 = [(x, y) | y <- l2, x <- l1]
+
+testF s heightToDoc pretty l = do
+  trees <- return $ map (\h ->
+                          snd $ foldl(\(l, (_, xs)) _ ->
+                                       let (t, nl) = heightToDoc l h in
+                                       (nl, (h, t:xs))
+                                     ) (l, (h, [])) [1..testNumber]
+                        ) treeHeights
+  --printf "----------------------\n%s\n----------------------\n" s
+  b <- foldl (\f (h, treeL) -> do
+               --- Fix tree height and tree list
+               c <- f
+               a <- foldl (\f w -> do
+                            --- Fix width
+                            c <- f
+                            start <- getCurrentTime
+                            a <- return $ (++) c $ foldl (\f t ->
+                                                           (++) f $ take 2 $ pretty w t
+                                                         ) "" treeL
+                            print a
+                            stop <- getCurrentTime
+                            printf "width: %d\nheight: %d\n" w h
+                            printf "Average time: "
+                            print $ dividingF $ diffUTCTime stop start
+                            return a 
+                          ) (return "") w
+               return (c ++ a)
+             ) (return "") trees 
   print b
- 
-clearUUtest l = do 
-  uuTrees <- return $ map (\h -> (fst (ClearUU.heightToDoc l h), h)) treeHeights
-  printf "----------------------\nclearUU\n----------------------\n"
-  c <- foldl' (\f (w, (t, h)) -> do
-                c <- f
-                start <- getCurrentTime
-                a <- UU.render t w
-                print a
-                stop  <- getCurrentTime
-                printf "width: %d\nheight: %d\n" w h
-                print $ diffUTCTime stop start
-                printf "\n\n"
-                return $ a
-              ) (return ()) $ cross w uuTrees
-  print c
 
-hashMaptest l = do
-  hashMapTrees <- return $ map (\h -> (fst (DocHashMap.heightToDoc l h), h)) treeHeights
-  printf "----------------------\nhashMap\n----------------------\n"
-  c <- foldl' (\f (w, (t, h)) -> do
-                c <- f
-                start <- getCurrentTime
-                a <- return $ (++) c $ take 2 $ DocHashMap.pretty w t
-                print a
-                stop  <- getCurrentTime
-                printf "width: %d\nheight: %d\n" w h
-                print $ diffUTCTime stop start
-                printf "\n\n"
-                return $ a
-              ) (return "") $ cross w hashMapTrees
-  print c
+testMapBURS = testF "mapBURS"    MapBURS.heightToDoc MapBURS.pretty
+testClearUU = testF "clearUU"    ClearUU.heightToDoc (\w t -> UU.disp t w "")
+testHashMap = testF "hashMap" DocHashMap.heightToDoc DocHashMap.pretty 
 
 main = do
+  hSetBuffering stdout NoBuffering
   g <- getStdGen
   l <- return $ map (\v -> v:"") $ randomRs ('a', 'z') g
-  mapBURStest l
-  clearUUtest l
-  hashMaptest l
+  testHashMap l
+  --testMapBURS l
+  --testClearUU l
 
