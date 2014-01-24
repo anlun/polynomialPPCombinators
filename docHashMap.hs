@@ -67,7 +67,7 @@ docToVariants width d@(Choice ld rd) startVariants =
 
 crossVariants :: Int -> (Format -> Format -> Format) -> Doc -> Doc -> Doc -> SubtreeVariants -> SubtreeVariants
 crossVariants width f d leftDoc rightDoc startVariants =
-  g $ fromMaybe Map.empty $ (>>=) leftVariants $ \l -> (>>=) rightVariants $ return . (crossed l)
+  g $ fromMaybe Map.empty $ (>>=) leftVariants $ \l -> rightVariants >>= return . (crossed l)
   where
     g                    = \m -> Map.insert d m variantsWithRightDoc
     variantsWithLeftDoc  = docToVariants width leftDoc  startVariants
@@ -77,12 +77,12 @@ crossVariants width f d leftDoc rightDoc startVariants =
     crossed              = variantCross width f
 
 variantCross :: Int -> (Format -> Format -> Format) -> Variants -> Variants -> Variants
-variantCross width f leftVariants rightVariants = Map.foldl' (\m lv ->
+variantCross width f lv rv = Map.foldl' (\m lv ->
     let fMap = Map.foldl' (\m rv -> let fV = f lv rv in
                              insertIfSuitable width fV m
-                          ) Map.empty rightVariants in
+                          ) Map.empty rv in
     Map.unionWith min fMap m
-  ) Map.empty leftVariants
+  ) Map.empty lv
 
 -- -------------------------------------------------------------------
 -- Doc ---------------------------------------------------------------
@@ -94,6 +94,9 @@ data Doc = Text String
          | Doc `Choice` Doc
          deriving (Eq, Ord, Show, Generic)
 instance Hashable Doc
+
+text   = Text
+indent = Indent
 
 (>|<) :: Doc -> Doc -> Doc
 a >|< b = Beside a b
@@ -119,10 +122,10 @@ pretty width d =
 -- Test --------------------------------------------------------------
 
 heightToDoc :: [String] -> Int -> (Doc, [String])
-heightToDoc (x:xs) 0 = (Text x, xs)
+heightToDoc (x:xs) 0 = (text x, xs)
 heightToDoc (x:xs) n = (node >|< ((a >|< c) >//< (b >-< d)), zs)
   where
-    node    = Text x
+    node    = text x
     f       = flip heightToDoc (n-1)     
     (a, ys) = f xs 
     (b, zs) = f ys 
