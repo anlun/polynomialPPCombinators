@@ -59,4 +59,3 @@ main = do
   testHashMap l
   --testMapBURS l
   --testClearUU l
-

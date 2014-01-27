@@ -43,7 +43,7 @@ docToVariants width d@(Text s) startVariants
     fr  = fmtToFrame fmt
 
 docToVariants width d@(Indent i subDoc) startVariants =  
-  g $ fromMaybe Map.empty $ subDocVariants >>= return . indented
+  g $ fromMaybe Map.empty $ fmap indented subDocVariants
   where
     g                  = \m -> Map.insert d m variantsWithSubDoc
     subDocVariants     = Map.lookup subDoc variantsWithSubDoc
@@ -68,7 +68,7 @@ docToVariants width d@(Choice ld rd) startVariants =
 
 crossVariants :: Int -> (Format -> Format -> Format) -> Doc -> Doc -> Doc -> SubtreeVariants -> SubtreeVariants
 crossVariants width f d leftDoc rightDoc startVariants =
-  g $ fromMaybe Map.empty $ (>>=) leftVariants $ \l -> rightVariants >>= return . (crossed l)
+  g $ fromMaybe Map.empty $ leftVariants >>= (flip fmap rightVariants) . crossed
   where
     g                    = \m -> Map.insert d m variantsWithRightDoc
     variantsWithLeftDoc  = docToVariants width leftDoc  startVariants
@@ -90,7 +90,7 @@ variantCross width f lv rv = Map.foldl' (\m lv ->
 
 pretty :: Int -> Doc -> String
 pretty width d =
-  fromMaybe "Error" $ variants >>= chooser >>= return . (\f -> txtstr f 0 "")
+  fromMaybe "Error" $ variants >>= (fmap (\f -> txtstr f 0 "")) . chooser
   where
     allVariants = docToVariants width d Map.empty
     variants    = Map.lookup d allVariants
