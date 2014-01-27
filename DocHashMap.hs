@@ -12,6 +12,7 @@ import System.Environment (getArgs)
 import System.Random
 
 import Format
+import Doc
 
 -- -------------------------------------------------------------------
 -- Formats -----------------------------------------------------------
@@ -83,29 +84,6 @@ variantCross width f lv rv = Map.foldl' (\m lv ->
                           ) Map.empty rv in
     Map.unionWith min fMap m
   ) Map.empty lv
-
--- -------------------------------------------------------------------
--- Doc ---------------------------------------------------------------
-
-data Doc = Text String
-         | Indent Int Doc
-         | Doc `Beside` Doc
-         | Doc `Above`  Doc
-         | Doc `Choice` Doc
-         deriving (Eq, Ord, Show, Generic)
-instance Hashable Doc
-
-text   = Text
-indent = Indent
-
-(>|<) :: Doc -> Doc -> Doc
-a >|< b = Beside a b
-
-(>-<) :: Doc -> Doc -> Doc
-a >-< b = Above a b
-
-(>//<) :: Doc -> Doc -> Doc
-a >//< b = Choice a b
 
 -- -------------------------------------------------------------------
 -- Pretty ------------------------------------------------------------

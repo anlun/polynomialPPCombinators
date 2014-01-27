@@ -33,9 +33,6 @@ exTreeG n = Node subtree subtree
   where
     subtree = exTreeG $ n - 1
 
--- Умирает при best 8 ...
--- Даже на best 8 1000000
-
 heightToDoc :: [String] -> Int -> (PP_Doc, [String])
 heightToDoc (x:xs) 0 = (text x, xs)
 heightToDoc (x:xs) n = (node >|< (join $ (a >|< c) >//< (b >-< d)), zs)
