@@ -13,7 +13,6 @@ import GHC.Generics (Generic)
 import Data.Hashable
 import Data.Maybe
 import qualified Data.HashMap.Strict as Map
---import qualified Data.Map as Map
 
 import qualified Data.List as List
 
@@ -21,9 +20,6 @@ import System.Environment (getArgs)
 import System.Random
 
 import Format
-
--- -------------------------------------------------------------------
--- Formats -----------------------------------------------------------
 
 type Variants = Map.HashMap Frame Format
 type Doc = Int -> Variants
