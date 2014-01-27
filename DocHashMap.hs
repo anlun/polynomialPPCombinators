@@ -32,58 +32,45 @@ insertIfSuitable w fmt m = if (isSuitable w fmt)
 type SubtreeVariants = Map.HashMap Doc Variants
 
 docToVariants :: Int -> Doc -> SubtreeVariants -> SubtreeVariants
-docToVariants width d startVariants | isJust (Map.lookup d startVariants) = startVariants
+docToVariants _ d stVar | isJust (Map.lookup d stVar) = stVar
 
-docToVariants width d@(Text s) startVariants
-  | length s > width = Map.insert d Map.empty startVariants
-docToVariants width d@(Text s) startVariants
-  = Map.insert d (Map.singleton fr fmt) startVariants
-  where
+docToVariants width d@(Text s) stVar | length s > width = Map.insert d Map.empty stVar
+docToVariants _     d@(Text s) stVar = Map.insert d (Map.singleton fr fmt) stVar where
     fmt = s2fmt s
     fr  = fmtToFrame fmt
 
-docToVariants width d@(Indent i subDoc) startVariants =  
-  g $ fromMaybe Map.empty $ fmap indented subDocVariants
-  where
+docToVariants width d@(Indent i subDoc) stVar =  
+  g $ fromMaybe Map.empty $ fmap indented subDocVariants where
     g                  = \m -> Map.insert d m variantsWithSubDoc
     subDocVariants     = Map.lookup subDoc variantsWithSubDoc
-    variantsWithSubDoc = docToVariants width subDoc startVariants
+    variantsWithSubDoc = docToVariants width subDoc stVar
     indented           = Map.foldl' (\m v -> let iv = indentFmt i v in
                                        insertIfSuitable width iv m
                                     ) Map.empty
 
-docToVariants width d@(Beside ld rd) startVariants =
-  crossVariants width besideFmt d ld rd startVariants
-docToVariants width d@(Above  ld rd) startVariants =
-  crossVariants width aboveFmt  d ld rd startVariants
-
-docToVariants width d@(Choice ld rd) startVariants =
-  Map.insert d docResult varWithRD
-  where
-    varWithLD = docToVariants width ld startVariants
+docToVariants width d@(Beside ld rd) stVar = crossVariants width besideFmt d ld rd stVar
+docToVariants width d@(Above  ld rd) stVar = crossVariants width aboveFmt  d ld rd stVar
+docToVariants width d@(Choice ld rd) stVar = Map.insert d docResult varWithRD where
+    varWithLD = docToVariants width ld stVar
     l         = fromMaybe Map.empty $ Map.lookup ld varWithLD
     varWithRD = docToVariants width rd varWithLD
     r         = fromMaybe Map.empty $ Map.lookup rd varWithRD
     docResult = Map.unionWith min l r
 
 crossVariants :: Int -> (Format -> Format -> Format) -> Doc -> Doc -> Doc -> SubtreeVariants -> SubtreeVariants
-crossVariants width f d leftDoc rightDoc startVariants =
-  g $ fromMaybe Map.empty $ leftVariants >>= (flip fmap rightVariants) . crossed
-  where
+crossVariants width f d leftDoc rightDoc stVar =
+  g $ fromMaybe Map.empty $ leftVariants >>= (flip fmap rightVariants) . crossed where
     g                    = \m -> Map.insert d m variantsWithRightDoc
-    variantsWithLeftDoc  = docToVariants width leftDoc  startVariants
+    variantsWithLeftDoc  = docToVariants width leftDoc  stVar
     leftVariants         = Map.lookup leftDoc  variantsWithLeftDoc
     variantsWithRightDoc = docToVariants width rightDoc variantsWithLeftDoc
     rightVariants        = Map.lookup rightDoc variantsWithRightDoc
     crossed              = variantCross width f
 
 variantCross :: Int -> (Format -> Format -> Format) -> Variants -> Variants -> Variants
-variantCross width f lv rv = Map.foldl' (\m lv ->
-    let fMap = Map.foldl' (\m rv -> let fV = f lv rv in
-                             insertIfSuitable width fV m
-                          ) Map.empty rv in
-    Map.unionWith min fMap m
-  ) Map.empty lv
+variantCross width f lvs rvs = Map.foldl' (\m lv -> Map.unionWith min m $
+    Map.foldl' (\m rv -> insertIfSuitable width (f lv rv) m) Map.empty rvs
+  ) Map.empty lvs
 
 -- -------------------------------------------------------------------
 -- Pretty ------------------------------------------------------------
