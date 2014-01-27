@@ -4,12 +4,15 @@ import System.IO
 import Control.DeepSeq
 import System.Random
 import Text.Printf
-import qualified MapBURS
 
-import qualified ClearUU
+import qualified AltPretty
+import qualified AltPrettyTest
+
+import qualified UUTest
 import qualified UU.Pretty as UU
 
-import qualified DocHashMap
+import qualified Pretty
+import qualified PrettyTest
 
 treeHeights = [5, 6] --, 7]--[9, 10, 11]
 w = [25, 50, 100, 150]
@@ -48,9 +51,9 @@ testF s heightToDoc pretty l = do
              ) (return "") trees 
   print b
 
-testMapBURS = testF "mapBURS"    MapBURS.heightToDoc MapBURS.pretty
-testClearUU = testF "clearUU"    ClearUU.heightToDoc (\w t -> UU.disp t w "")
-testHashMap = testF "hashMap" DocHashMap.heightToDoc DocHashMap.pretty 
+testHashMap = testF "lib"    PrettyTest.heightToDoc Pretty.pretty 
+testMapBURS = testF "altLib" AltPrettyTest.heightToDoc AltPretty.pretty
+testClearUU = testF "UU"        UUTest.heightToDoc (\w t -> UU.disp t w "")
 
 main = do
   hSetBuffering stdout NoBuffering

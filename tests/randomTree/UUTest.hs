@@ -1,4 +1,4 @@
-module ClearUU where
+module UUTest where
 
 import UU.Pretty
 import System.Environment (getArgs)

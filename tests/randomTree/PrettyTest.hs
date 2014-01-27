@@ -1,3 +1,5 @@
+module PrettyTest where
+
 import System.Environment (getArgs)
 import System.Random
 
