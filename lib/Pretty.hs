@@ -1,15 +1,12 @@
 {-# LANGUAGE DeriveGeneric #-}
 
---module DocHashMap where
+module Pretty where
 
 import GHC.Generics (Generic)
 import Data.Hashable
 import Data.Maybe
 import qualified Data.HashMap.Strict as Map
 import qualified Data.List as List
-
-import System.Environment (getArgs)
-import System.Random
 
 import Format
 import Doc
@@ -51,27 +48,3 @@ pretty :: Int -> Doc -> String
 pretty w d = fromMaybe "Error" $ variants >>= (fmap (\f -> txtstr f 0 "")) . chooser where
     variants  = Map.lookup d $ docToVariants w d Map.empty
     chooser m = if Map.null m then Nothing else Just $ List.minimum $ Map.elems m
-
--- -------------------------------------------------------------------
--- Test --------------------------------------------------------------
-
-heightToDoc :: [String] -> Int -> (Doc, [String])
-heightToDoc (x:xs) 0 = (text x, xs)
-heightToDoc (x:xs) n = (node >|< ((a >|< c) >//< (b >-< d)), zs) where
-    node    = text x
-    f       = flip heightToDoc (n-1)     
-    (a, ys) = f xs 
-    (b, zs) = f ys 
-    (c, as) = f zs 
-    (d, bs) = f as 
-
-bestR tHeight width =
-  do
-    g <- getStdGen
-    putStrLn $ pretty width $ fst $ heightToDoc (randStrList g) tHeight
-  where
-    randStrList = (map (:"")) . (randomRs ('a', 'z'))
-
-main = do
-  args <- getArgs
-  let tHeight = read (head args); width = read (args !! 1) in bestR tHeight width
