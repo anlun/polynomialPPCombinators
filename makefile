@@ -1,2 +1,2 @@
 all:
-	ghc format.hs docHashMap.hs clearUU.hs mapBURS.hs test.hs -o test
+	ghc Format.hs DocHashMap.hs ClearUU.hs MapBURS.hs test.hs -o test
