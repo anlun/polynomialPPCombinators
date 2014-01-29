@@ -36,6 +36,11 @@ docToVariants w d@(Choice ld rd) var = Map.insert d res rdVar where
     v     = fromMaybe Map.empty . flip Map.lookup rdVar
     res   = Map.unionWith min (v ld) (v rd)
 
+docToVariants w d@(OneLine sd) var = (\m -> Map.insert d m sdVar) $
+  fromMaybe Map.empty $ fmap filterOneLiners $ Map.lookup sd sdVar where
+    sdVar           = docToVariants w sd var
+    filterOneLiners = Map.filter $ (<= 1) . height
+
 crossVariants :: Int -> (Format -> Format -> Format) -> Doc -> Doc -> Doc -> SubtreeVariants -> SubtreeVariants
 crossVariants w f d ld rd var = (\m -> Map.insert d m rdVar) $
   Map.foldl' (\m lv -> Map.unionWith min m $

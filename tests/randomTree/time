@@ -1,0 +1,126 @@
+----------
+HashMap
+-----------
+width: 25
+height: 6
+Average time: 0.80881s
+
+width: 50
+height: 6
+Average time: 1.9279127s
+
+width: 100
+height: 6
+Average time: 2.2265375s
+
+width: 150
+height: 6
+Average time: 2.2363578s
+ 
+width: 25
+height: 7
+Average time: 4.2740057s
+
+width: 50
+height: 7
+Average time: 14.2855369s                                                                     
+width: 100
+height: 7
+Average time: 35.6691903s
+
+width: 150
+height: 7
+Average time: 43.8573766s 
+
+----------
+ClearUU
+-----------
+width: 25
+height: 6
+Average time: 0.0787618s
+
+width: 50
+height: 6
+Average time: 0.1261232s
+
+width: 100
+height: 6
+Average time: 0.0603489s
+
+width: 150
+height: 6
+Average time: 0.0578879s
+
+width: 25
+height: 7
+Average time: 1.3296707s
+
+width: 50
+height: 7
+Average time: 315.161767s
+
+width: 100
+height: 7
+Average time: 114.5471324s
+
+width: 150
+height: 7
+Average time: 38.9119038s
+
+----------
+HashMap
+-----------
+
+width: 25
+height: 8
+Average time: 20.3853716s
+
+width: 50
+height: 8
+Average time: 79.2468271s
+
+width: 100
+height: 8
+Average time: 268.5112646s
+
+width: 150
+height: 8
+Average time: 509.2366673s
+
+
+------
+1 test
+------
+----------
+MapBURS
+----------
+width: 25
+height: 6
+Average time: 0.161347s
+
+width: 50
+height: 6
+Average time: 0.656301s
+
+width: 100
+height: 6
+Average time: 0.95148s
+
+width: 150
+height: 6
+Average time: 0.982677s
+
+width: 25
+height: 7
+Average time: 0.657819s
+
+width: 50
+height: 7
+Average time: 3.869871s
+
+width: 100
+height: 7
+Average time: 15.111887s
+width: 150
+height: 7
+Average time: 21.184562s
