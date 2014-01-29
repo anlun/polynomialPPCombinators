@@ -16,12 +16,18 @@ instance Hashable Doc
 text   = Text
 indent = Indent
 
-(>|<) :: Doc -> Doc -> Doc
-a >|< b = Beside a b
-
-(>-<) :: Doc -> Doc -> Doc
-a >-< b = Above a b
-
-(>//<) :: Doc -> Doc -> Doc
+(>|<), (>-<), (>//<) :: Doc -> Doc -> Doc
+a >|<  b = Beside a b
+a >-<  b = Above  a b
 a >//< b = Choice a b
 
+--------------------------
+--- Additional combinators
+
+(>||<) :: Doc -> Doc -> Doc
+a >||< b = a >|< text " " >|< b
+
+
+addSeparator :: (Doc -> Doc) -> [Doc] -> [Doc]
+addSeparator sep ls | length ls <= 1 = ls
+addSeparator sep (l:ls) = (:) (sep l) $ addSeparator sep ls
