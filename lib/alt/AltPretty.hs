@@ -8,8 +8,17 @@ import Variants
 
 type Doc = Int -> Variants
 
+infiniteFormat :: Int -> Int -> Format
+infiniteFormat w lw = Elem 1000000 lw w (\_ _ -> "")
+
+emptyMap :: Int -> Variants
+emptyMap n = foldl (\m (w, lw) -> Map.insert (F w lw) (infiniteFormat w lw) m) Map.empty [(x, y) | x <- [1..n], y <- [1..x]]
+
+em = emptyMap 25
+
 text :: String -> Doc
 text s n = checkUpdate n (s2fmt s) Map.empty 
+--text s n = checkUpdate n (s2fmt s) em
 
 indent :: Int -> Doc -> Doc
 indent i d n = Map.fromList vs where
