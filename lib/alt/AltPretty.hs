@@ -1,21 +1,8 @@
-{-# LANGUAGE DeriveGeneric #-}
-
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
-
 module AltPretty where
 
-import Data.MemoTrie
-import Data.Binary
-import qualified Data.ByteString.Lazy as ByteLazy
-
-import GHC.Generics (Generic)
-import Data.Hashable
-import Data.Maybe
+--import Data.MemoTrie
 import qualified Data.HashMap.Strict as Map
-
 import qualified Data.List as List
-
 import Format
 
 type Variants = Map.HashMap Frame Format
