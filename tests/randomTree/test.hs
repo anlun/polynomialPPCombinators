@@ -14,11 +14,11 @@ import qualified UU.Pretty as UU
 import qualified Pretty
 import qualified PrettyTest
 
-treeHeights = [6, 7] --, 7]--[9, 10, 11]
-w = [25, 50, 100, 150]
+treeHeights = [8] --, 7]--[9, 10, 11]
+w = [25]--, 50, 100, 150]
 
-testNumber = 10
-dividingF  = (/ 10)
+testNumber = 1
+dividingF  = (/ 1)
 
 cross l1 l2 = [(x, y) | y <- l2, x <- l1]
 
@@ -61,7 +61,7 @@ main = do
   l <- return $ map (\v -> v:"") $ randomRs ('a', 'z') g
   putStrLn "----------\nHashMap\n-----------\n\n"
   testHashMap l
-  --putStrLn "----------\nMapBURS\n-----------\n\n"
-  --testMapBURS l
-  putStrLn "----------\nClearUU\n-----------\n\n"
-  testClearUU l
+  putStrLn "----------\nMapBURS\n-----------\n\n"
+  testMapBURS l
+  --putStrLn "----------\nClearUU\n-----------\n\n"
+  --testClearUU l
