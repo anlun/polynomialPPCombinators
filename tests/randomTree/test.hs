@@ -14,8 +14,8 @@ import qualified UU.Pretty as UU
 import qualified Pretty
 import qualified PrettyTest
 
-treeHeights = [8] --, 7]--[9, 10, 11]
-w = [25]--, 50, 100, 150]
+treeHeights = [6, 7, 8] --, 7]--[9, 10, 11]
+w = [25, 50]--, 50, 100, 150]
 
 testNumber = 1
 dividingF  = (/ 1)

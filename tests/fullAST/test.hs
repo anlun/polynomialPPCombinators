@@ -14,18 +14,18 @@ import qualified UU.Pretty as UU
 import qualified Pretty
 import qualified PrettyTest
 
-treeHeights = [5, 6] --, 7]--[9, 10, 11]
+treeHeights = [7, 8] --, 7]--[9, 10, 11]
 w = [25, 50, 100, 150]
 
-testNumber = 10
-dividingF  = (/ 10)
+testNumber = 1
+dividingF  = (/ 1)
 
 cross l1 l2 = [(x, y) | y <- l2, x <- l1]
 
 testF s heightToDoc pretty l = do
   trees <- return $ map (\h ->
                           snd $ foldl(\(l, (_, xs)) _ ->
-                                       let (t, nl) = heightToDoc l h in
+                                       let (t, nl) = heightToDoc h l in
                                        (nl, (h, t:xs))
                                      ) (l, (h, [])) [1..testNumber]
                         ) treeHeights
@@ -51,14 +51,14 @@ testF s heightToDoc pretty l = do
              ) (return "") trees 
   print b
 
-testHashMap = testF "lib"    PrettyTest.heightToDoc Pretty.pretty 
+testHashMap = testF "lib"       PrettyTest.heightToDoc    Pretty.pretty 
 testMapBURS = testF "altLib" AltPrettyTest.heightToDoc AltPretty.pretty
-testClearUU = testF "UU"        UUTest.heightToDoc (\w t -> UU.disp t w "")
+testClearUU = testF "UU"            UUTest.heightToDoc (\w t -> UU.disp t w "")
 
 main = do
   hSetBuffering stdout NoBuffering
   g <- getStdGen
   l <- return $ map (\v -> v:"") $ randomRs ('a', 'z') g
-  testHashMap l
-  --testMapBURS l
+  --testHashMap l
+  testMapBURS l
   --testClearUU l
