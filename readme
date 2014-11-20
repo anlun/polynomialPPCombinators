@@ -1,2 +1,2 @@
-This is the realization of polynomial-time optimal pretty-printing combinators with choice.
-Also the test utility is presented here for compare purposes.
+This is the implementation of polynomial-time optimal pretty-printing combinators with choice.
+Also the test utility is presented here for comparison purposes.
